@@ -1,1 +1,58 @@
 
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "Air Quality Monitor"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#define BLYNK_PRINT Serial
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+// WiFi credentials
+char ssid[] = "YourWiFiName";
+char pass[] = "YourWiFiPassword";
+
+// DHT Setup
+#define DHTPIN D2       // DHT connected to NodeMCU D2
+#define DHTTYPE DHT11   // Change to DHT22 if using that
+DHT dht(DHTPIN, DHTTYPE);
+
+// MQ135 Setup
+#define MQ135_PIN A0    // Analog pin A0 for gas sensor
+
+// Blynk Timer
+BlynkTimer timer;
+
+void sendSensorData() {
+  // Read DHT sensor
+  float temp = dht.readTemperature();
+  float hum = dht.readHumidity();
+
+  // Read air quality from MQ135
+  int mq135_value = analogRead(MQ135_PIN); // raw value from 0-1023
+
+  // Send to Blynk virtual pins
+  Blynk.virtualWrite(V0, temp);
+  Blynk.virtualWrite(V1, hum);
+  Blynk.virtualWrite(V2, mq135_value);
+
+  // Optional: print to Serial Monitor
+  Serial.print("Temp: "); Serial.print(temp); Serial.print(" °C\t");
+  Serial.print("Humidity: "); Serial.print(hum); Serial.print(" %\t");
+  Serial.print("Air Quality: "); Serial.println(mq135_value);
+}
+
+void setup() {
+  Serial.begin(115200);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  dht.begin();
+
+  // Run function every 5 seconds
+  timer.setInterval(5000L, sendSensorData);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
