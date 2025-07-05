@@ -1,1 +1,53 @@
 
+#define BLYNK_TEMPLATE_ID "TMPL3UPPImTJH"
+#define BLYNK_TEMPLATE_NAME "Home Automation Using ESP8266"
+#define BLYNK_AUTH_TOKEN "VngJ1GCIF0KAR-XBQr35RIRoMSddb22e"
+
+#define BLYNK_PRINT Serial
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+// Blynk credentials
+char auth[] = BLYNK_AUTH_TOKEN;
+char ssid[] = "JioFi2_D08135";       // your Wi-Fi name
+char pass[] = "WiFi Password";       // your Wi-Fi password
+
+// Relay pin assignments
+int led = D1;
+int fan = D2;
+int motor = D3;
+int light = D4;
+
+void setup()
+{
+  Serial.begin(115200);
+  Blynk.begin(auth, ssid, pass);
+
+  pinMode(led, OUTPUT);
+  pinMode(fan, OUTPUT);
+  pinMode(motor, OUTPUT);
+  pinMode(light, OUTPUT);
+}
+
+// Virtual pin handlers
+BLYNK_WRITE(V1) {
+  digitalWrite(led, param.asInt());
+}
+
+BLYNK_WRITE(V2) {
+  digitalWrite(fan, param.asInt());
+}
+
+BLYNK_WRITE(V3) {
+  digitalWrite(motor, param.asInt());
+}
+
+BLYNK_WRITE(V4) {
+  digitalWrite(light, param.asInt());
+}
+
+void loop()
+{
+  Blynk.run();
+}
